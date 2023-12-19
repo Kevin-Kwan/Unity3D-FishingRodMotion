@@ -1,2 +1,0 @@
-# GameProject
-Temporary Project Name
