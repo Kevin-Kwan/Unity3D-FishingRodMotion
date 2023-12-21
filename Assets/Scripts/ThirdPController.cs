@@ -21,6 +21,8 @@ public class ThirdPController : MonoBehaviour
     public float jumpHeight = 1.0f;
     public float jumpAdjustment = -2.0f;
     public float gravity = -9.81f;
+    // to fix floaty jumps
+    public float gravityFactor = 2.0f;
 
     public Vector3 playerVelocity;
 
@@ -38,37 +40,33 @@ public class ThirdPController : MonoBehaviour
     public bool isFishing = false;
     public bool isReeling = false;
 
-    // GameObject for fishing rod
+    // fishing objects
     public GameObject fishingRod;
 
-    // Start is called before the first frame update
     void Start()
     {
-        controller = GetComponent<CharacterController>();cinput = GetComponent<CharacterInputController>();
-        Cursor.lockState = CursorLockMode.Locked; // Lock the cursor to the center of the screen.
+        controller = GetComponent<CharacterController>();
+        Cursor.lockState = CursorLockMode.Locked; // lock the cursor to the center of the screen.
         cinput = GetComponent<CharacterInputController>();
         animator.SetBool("startFishing", false);
-        // hide the fishing rod
         fishingRod.SetActive(false);
     }
 
     // Update is called once per frame
     void Update() {
-        // Debug.Log(isGrounded);
         // Debug.Log(controller.isGrounded);
-        // We are using GetAxisRaw in case the player is using a controller.
-        // Not tested yet.
         if (controller.isGrounded && playerVelocity.y < 0) {
              animator.SetBool("isGrounded", true);
+            // todo: add jumping and landing animation
             // animator.SetBool("isJumping", false);
             // animator.SetBool("isFalling", false);
             playerVelocity.y = 0f;
             playerVelocity.x = 0f;
             playerVelocity.z = 0f;
         }
-        // Start fishing
         if (Input.GetKeyDown(KeyCode.E))
         {
+            // Start fishing
             if (!isFishing)
             {
                 animator.SetBool("startFishing", true);
@@ -84,20 +82,21 @@ public class ThirdPController : MonoBehaviour
             }
         }
 
-        // Cast
+        // Cast the Fishing Rod
         else if (Input.GetMouseButtonDown(0) && isFishing && !alreadyCast && !isReeling)
         {
             animator.SetTrigger("cast");
             alreadyCast = true;
         }
 
-        // Reel in
+        // Reel in the Fishing Rod
         if (Input.GetKeyDown(KeyCode.Q) && isFishing && alreadyCast && !isReeling)
         {
             animator.SetTrigger("reel");
             isReeling = true;
         }
-
+        
+        // Check if the Reel In animation is done playing
         if (isReeling)
         {
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -107,6 +106,7 @@ public class ThirdPController : MonoBehaviour
             }
         }
         
+        // If the player isn't fishing, then they can move
         if (!isFishing)
         {
             if (cinput.enabled)
@@ -121,26 +121,19 @@ public class ThirdPController : MonoBehaviour
             // animator.SetFloat("velX", _inputTurn);
 
             // absolute value of _inputForward and _inputTurn
-            if (_inputForward < 0f)
-            {
-                _inputForward = -_inputForward;
-            }
-            if (_inputTurn < 0f)
-            {
-                _inputTurn = -_inputTurn;
-            }
+            _inputForward = Mathf.Abs(_inputForward);
+            _inputTurn = Mathf.Abs(_inputTurn);
             targetVelY = Mathf.Max(_inputForward, _inputTurn);
             Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
             if (direction.magnitude >= 0.1f) // if no input, stop applying movement
             {
-                // Movement and also handles jumping while moving
-                // This if section might need to be moved to a new function and changed if bhop or other movement mechanics are added.
+                // movement and also handles jumping while moving
+                // this section might need to be moved to a new function and changed if bhop or other movement mechanics are added.
 
-
-                // Calculate the angle between the player's input direction and the positive x-axis.
-                // This angle is then used to rotate the player's game object so that it faces the direction of movement.
+                // calc the angle between the player's input direction and the positive x-axis.
+                // the angle is then used to rotate the player's game object so that it faces the direction of movement.
                 float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + camera.eulerAngles.y;
-                // Smoothly rotate the player's game object to face the direction of movement.
+                // smoothly rotate the player's game object to face the direction of movement.
                 float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothingVelocity, turnSmoothingTime);
                 transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
@@ -164,14 +157,15 @@ public class ThirdPController : MonoBehaviour
                         }
                     }
                     // player cannot "run" while in the air
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                    {
-                        currentSpeed = runSpeed;
-                    }
-                    else
-                    {
-                        currentSpeed = speed;
-                    }
+                    // if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    // {
+                    //     currentSpeed = runSpeed;
+                    // }
+                    // else
+                    // {
+                    //     currentSpeed = speed;
+                    // }
+                    currentSpeed = speed;
                 }
                 // current speed is preserved while in the air
                 controller.Move(moveDirection * currentSpeed * Time.deltaTime);
@@ -196,7 +190,7 @@ public class ThirdPController : MonoBehaviour
             }
             currentVelY = Mathf.Lerp(currentVelY, targetVelY, speedChangeRate);
             animator.SetFloat("velY", currentVelY);
-            playerVelocity.y += Physics.gravity.y * Time.deltaTime;
+            playerVelocity.y += gravityFactor * gravity * Time.deltaTime;
             controller.Move(playerVelocity * Time.deltaTime);
         }
     }
@@ -219,6 +213,6 @@ public class ThirdPController : MonoBehaviour
         // Debug.Log("Controller collision detected");
     }
     void Jump() {
-        playerVelocity.y += Mathf.Sqrt(jumpHeight * jumpAdjustment * gravity);
+        playerVelocity.y += Mathf.Sqrt(jumpHeight * jumpAdjustment * gravityFactor * gravity);
     }
 }
