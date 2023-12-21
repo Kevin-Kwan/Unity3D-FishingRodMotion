@@ -33,7 +33,7 @@ public class ThirdPController : MonoBehaviour
     private CharacterInputController cinput;
     float _inputForward = 0f;
     float _inputTurn = 0f;
-    public float speedChangeRate = 0.01f;
+    public float speedChangeRate = 0.1f;
     private float currentVelY = 0f;
     private float targetVelY = 0f;
     public bool alreadyCast = false;
