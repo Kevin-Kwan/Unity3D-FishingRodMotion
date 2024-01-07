@@ -39,38 +39,38 @@ public class VerletLine : MonoBehaviour
         lineRenderer.positionCount = particles.Count;
     }
 
-// Update the line.
-void FixedUpdate()
-{
-
-    foreach (var p in particles)
+    // Update the line with Verlet Physics.
+    void FixedUpdate()
     {
-        Verlet(p, Time.fixedDeltaTime);
-    }
-
-    for (int i = 0; i < Iterations; i++)
-    {
-        for (int j = 0; j < particles.Count - 1; j++)
+    
+        foreach (var p in particles)
         {
-            PoleConstraint(particles[j], particles[j + 1], SegmentLength);
+            Verlet(p, Time.fixedDeltaTime);
         }
+    
+        for (int i = 0; i < Iterations; i++)
+        {
+            for (int j = 0; j < particles.Count - 1; j++)
+            {
+                PoleConstraint(particles[j], particles[j + 1], SegmentLength);
+            }
+        }
+        particles[0].Pos = StartPoint.position;
+        if (SecondHasRigidbody)
+        {
+            Vector3 force = (particles[particles.Count - 1].Pos - EndPoint.position) * tensionConstant;
+            EndPoint.GetComponent<Rigidbody>().AddForce(force);
+        }
+    
+        particles[particles.Count - 1].Pos = EndPoint.position;
+    
+        var positions = new Vector3[particles.Count];
+        for (int i = 0; i < particles.Count; i++)
+        {
+            positions[i] = particles[i].Pos;
+        }
+        lineRenderer.SetPositions(positions);
     }
-    particles[0].Pos = StartPoint.position;
-    if (SecondHasRigidbody)
-    {
-        Vector3 force = (particles[particles.Count - 1].Pos - EndPoint.position) * tensionConstant;
-        EndPoint.GetComponent<Rigidbody>().AddForce(force);
-    }
-
-    particles[particles.Count - 1].Pos = EndPoint.position;
-
-    var positions = new Vector3[particles.Count];
-    for (int i = 0; i < particles.Count; i++)
-    {
-        positions[i] = particles[i].Pos;
-    }
-    lineRenderer.SetPositions(positions);
-}
 
     // Performs Verlet integration to update the position of a particle.
     private void Verlet(LineParticle p, float dt)
