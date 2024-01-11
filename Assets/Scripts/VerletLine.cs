@@ -10,12 +10,19 @@ public class VerletLine : MonoBehaviour
     public Transform EndPoint;
     public int Segments = 10;
     public LineRenderer lineRenderer;
-    public float SegmentLength = 0.5f;
+    public float SegmentLength = 0.03f;
+    public float startSegmentLength = 0.03f;
+    public float currentTargetLength = 0.03f;
+    public float maxSegmentLength = 1f;
     public Vector3 Gravity = new Vector3(0, -9.81f, 0);
+    // Num of Physics iterations
     public int Iterations = 6;
+    // higher is stiffer, lower is stretchier
     public float tensionConstant = 10f;
     public bool SecondHasRigidbody = false;
-
+    public float LerpSpeed = 1f;
+    public float Delay = 3f;
+    private bool isChangingLength = false;
 
     // Represents a segment of the line.
     private class LineParticle
@@ -26,7 +33,6 @@ public class VerletLine : MonoBehaviour
     }
 
     private List<LineParticle> particles;
-
     // Initializes the line.
     void Start()
     {
@@ -37,6 +43,42 @@ public class VerletLine : MonoBehaviour
             particles.Add(new LineParticle { Pos = point, OldPos = point, Acceleration = Gravity });
         }
         lineRenderer.positionCount = particles.Count;
+    }
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {   
+            // Cast out the line
+            // A generic delay because I don't know the timing of casting out a fishing line and when that line comes out
+            // I'm assuming at the peak of the cast, idk
+            StartCoroutine(IncreaseLengthAfterDelay(Delay));
+
+        }
+        else if (Input.GetKeyDown(KeyCode.Q))
+        {
+            // Reel In
+            currentTargetLength = startSegmentLength;
+            isChangingLength = true;
+        }
+
+        if (isChangingLength)
+        {
+            SegmentLength = Mathf.Lerp(SegmentLength, currentTargetLength, LerpSpeed * Time.deltaTime);
+
+            // Stop changing the line length when it's close enough to the min
+            if (Mathf.Abs(SegmentLength - currentTargetLength) < 0.01f)
+            {
+                SegmentLength = currentTargetLength;
+                isChangingLength = false;
+            }
+        }
+    }
+
+    private IEnumerator IncreaseLengthAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        currentTargetLength = maxSegmentLength;
+        isChangingLength = true;
     }
 
     // Update the line with Verlet Physics.
