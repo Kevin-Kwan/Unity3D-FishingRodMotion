@@ -44,16 +44,16 @@ public class SpringAttempt : MonoBehaviour
         lineRenderer.SetPositions(points.ToArray());
     }
 
-void ApplySpringForce(int index1, int index2, float segLength)
-{
-    Vector3 diff = points[index2] - points[index1];
-    float dist = diff.magnitude;
-    float stretch = dist - segLength;
-    Vector3 force = diff.normalized * (stretch * springConstant);
-    force -= bobber.mass * Physics.gravity;
-    points[index1] += force * Time.deltaTime;
-    points[index2] -= force * Time.deltaTime;
-}
+    void ApplySpringForce(int index1, int index2, float segLength)
+    {
+        Vector3 diff = points[index2] - points[index1];
+        float dist = diff.magnitude;
+        float stretch = dist - segLength;
+        Vector3 force = diff.normalized * (stretch * springConstant);
+        force -= bobber.mass * Physics.gravity;
+        points[index1] += force * Time.deltaTime;
+        points[index2] -= force * Time.deltaTime;
+    }
 
 
 }
