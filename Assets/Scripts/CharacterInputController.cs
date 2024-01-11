@@ -41,8 +41,8 @@ public class CharacterInputController : MonoBehaviour {
 
         
 
-	void Update () {
-		
+    void Update () {
+        
         // GetAxisRaw() so we can do filtering here instead of the InputManager
         float h = Input.GetAxisRaw("Horizontal");// setup h variable as our horizontal input axis
         float v = Input.GetAxisRaw("Vertical"); // setup v variables as our vertical input axis
@@ -66,5 +66,5 @@ public class CharacterInputController : MonoBehaviour {
         Turn = filteredTurnInput;
 
         // Jump = Input.GetButtonDown("Jump");
-	}
+    }
 }
