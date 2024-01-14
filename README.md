@@ -1,6 +1,6 @@
 # Implementing Fishing Rod Line Physics in Unity 3D
 ## About:
-This is an unpolished proof-of-concept attempt of implementing the realistic motion, physics, and animation of casting a fishing rod and reeling in a fishing line in Unity 3D using Verlet Physics, Unity's Line, and other built-in physics elements.
+This is an unpolished proof-of-concept attempt of implementing the realistic motion, physics, and animation of casting a fishing rod and reeling in a fishing line (like a rope or a string) in Unity 3D using Verlet Physics, Unity's Line, and other built-in physics elements.
 Unity version used: LTS 2022.3.15f1
 ## Preview:
 ![fishy](https://github.com/Kevin-Kwan/Unity3D-FishingRodMotion/assets/51896555/6ecd3494-58c4-4a2e-9cbe-4427f3652ae8)
